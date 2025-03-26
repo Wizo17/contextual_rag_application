@@ -21,7 +21,9 @@ def main():
     indexer.load_chunks()
 
     # query = "Où exercait le Dr Rémi R dans la décision du 18 décembre 2015?"
-    query = "Quels sont les faits qui sont reprochés à Dr Rémi R décision du 18 décembre 2015?"
+    # query = "Quels sont les faits qui sont reprochés à Dr Rémi R décision du 18 décembre 2015?"
+    query = "Que contient la plainte du 29 novembre 2016 avec M. B contre Dr A?"
+    # query = "Une mauvaise queston"
 
     doc_res = indexer.query_index(query)
     # print(doc_res)

@@ -8,10 +8,20 @@ from templates.prompts import ADD_CONTEXT_HUMAN_PROMPT, ADD_CONTEXT_SYSTEM_PROMP
 from utils.logger import logger
 
 class LLMSession:
-    # TODO Write docstring
+    """
+    A class to manage interactions with various LLM providers.
+
+    This class initializes the specified LLM provider and model, allowing for
+    the invocation of language model functionalities. Supported providers include
+    OpenAI, Anthropic, Ollama, and Google.
+
+    Attributes:
+        provider (str): The name of the LLM provider.
+        model (str): The model name to be used with the provider.
+        llm: An instance of the language model corresponding to the specified provider.
+    """
 
     def __init__(self, provider, model):
-        # TODO Write docstring
         self.provider = provider
         self.model = model
 
@@ -28,7 +38,22 @@ class LLMSession:
         self.llm = model_providers[self.provider]()
     
     def get_context(self, chunk, document):
-        # TODO Write docstring
+        """Generate context for a given chunk and document.
+
+        This method constructs a context message for the language model by combining
+        a predefined system prompt with a human message that includes the provided
+        chunk and document. It invokes the language model to generate a response
+        based on this context.
+
+        Args:
+            chunk (str): The text chunk to be included in the context.
+            document (str): The document to be included in the context.
+
+        Returns:
+            str: The generated context response from the language model.
+                 Returns None if an error occurs during invocation.
+        """
+        
         try:
             input_message = [
                 SystemMessage(content=ADD_CONTEXT_SYSTEM_PROMPT),
@@ -44,7 +69,22 @@ class LLMSession:
             return None
     
     def get_response_from_documents(self, query: str, documents: list):
-        # TODO Write docstring
+        """Generate a response from the language model based on a query and a list of documents.
+
+        This method constructs a context message for the language model by combining
+        a predefined system prompt with a human message that includes the provided
+        query and documents. It invokes the language model to generate a response
+        based on this context.
+
+        Args:
+            query (str): The query to be included in the context.
+            documents (list): A list of documents to be included in the context.
+
+        Returns:
+            str: The generated response from the language model.
+                 Returns None if an error occurs during invocation.
+        """
+        
         try:
             input_message = [
                 SystemMessage(content=BASIC_QUESTION_SYSTEM_PROMPT),

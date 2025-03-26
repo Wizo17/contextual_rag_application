@@ -3,23 +3,36 @@ from config.config import RERANK_TOP_K
 from utils.logger import logger
 
 class Reranker:
-    # TODO Write docstring
+    """A class for reranking search results using a cross-encoder model.
+
+    This class provides functionality to rerank a list of search results based on their 
+    relevance to a query using a cross-encoder model from sentence-transformers. It uses
+    the 'ms-marco-MiniLM-L-6-v2' model which is specifically trained for passage reranking.
+
+    Attributes:
+        cross_encoder (CrossEncoder): The cross-encoder model used for reranking.
+    """
 
     def __init__(self):
-        # TODO Write docstring
         self.cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
 
-    # def scored_results(self, query: str, results: list[str]):
-    #     # TODO Write docstring
-    #     data = []
-    #     for doc in results:
-    #         data.append(query, doc)
-
-    #     scores = self.cross_encoder.predict(data)
-    #     return scores
-
     def rerank_results(self, query: str, results: list[str], top_k: int = RERANK_TOP_K):
-        # TODO Write docstring
+        """Rerank a list of search results based on their relevance to a query.
+
+        This method uses the cross-encoder model to rerank search results by computing
+        relevance scores between the query and each result, then returning the top_k
+        most relevant results.
+
+        Args:
+            query (str): The search query to compare results against.
+            results (list[str]): List of text results to rerank.
+            top_k (int, optional): Number of top results to return. Defaults to RERANK_TOP_K.
+
+        Returns:
+            list[str]: The top_k most relevant results, reranked by relevance score.
+            Empty list if an error occurs during reranking.
+        """
+        
         try:
             reranked = self.cross_encoder.rank(
                 query, 

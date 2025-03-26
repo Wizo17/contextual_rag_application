@@ -6,7 +6,20 @@ from utils.logger import logger
 from config.config import HUGGINGFACE_HUB_TOKEN, OPENAI_API_KEY, EMBEDDING_MODEL
 
 class Embedder:
-    # TODO Write docstring
+    """A class for generating embeddings from text using various embedding models.
+
+    This class provides functionality to generate vector embeddings from text input using
+    different embedding models like OpenAI's text embeddings, LegalBERT, BioBERT, etc.
+    It handles the initialization of models and tokenizers, and provides methods to 
+    generate embeddings using the specified model type.
+
+    Attributes:
+        None
+
+    Note:
+        Currently only OpenAI embeddings are enabled. Other model options are commented out
+        but can be enabled by uncommenting the relevant code sections.
+    """
 
     def __init__(self):
         # login(token=HUGGINGFACE_HUB_TOKEN)
@@ -34,7 +47,19 @@ class Embedder:
         # self.tiiuae_model = AutoModelForCausalLM.from_pretrained("tiiuae/falcon-7b")
 
     def get_embedding(self, text: str, model_type: str):
-        # TODO Write docstring
+        """Generate embeddings for the given text using the specified model type.
+
+        Args:
+            text (str): The input text to generate embeddings for.
+            model_type (str): The type of embedding model to use (e.g., "openai", "legalbert", etc.).
+
+        Returns:
+            numpy.ndarray: The generated embeddings as a numpy array.
+            None: If an error occurs during embedding generation.
+
+        Raises:
+            ValueError: If the specified model type is not supported.
+        """
         
         try:
             if model_type == "openai":
@@ -79,7 +104,19 @@ class Embedder:
             None
 
     def fuse_embeddings(self, embeddings: list[np.ndarray], method: str = 'mean'):
-        # TODO Write docstring
+        """Fuse multiple embeddings into a single embedding using different methods.
+
+        Args:
+            embeddings (list[np.ndarray]): List of embeddings to fuse together.
+            method (str, optional): Method to use for fusion. Can be 'mean', 'sum' or 'concat'. Defaults to 'mean'.
+
+        Returns:
+            numpy.ndarray: The fused embedding.
+            None: If an error occurs during fusion.
+
+        Raises:
+            ValueError: If the list of embeddings is empty or if the fusion method is not supported.
+        """
 
         try:
             if not embeddings:
