@@ -1,15 +1,15 @@
 import openai
 import numpy as np
-from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
+# from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
 from huggingface_hub import login
 from utils.logger import logger
-from config.config import HUGGINGFACE_HUB_TOKEN, OPENAI_API_KEY
+from config.config import HUGGINGFACE_HUB_TOKEN, OPENAI_API_KEY, EMBEDDING_MODEL
 
 class Embedder:
     # TODO Write docstring
 
     def __init__(self):
-        login(token=HUGGINGFACE_HUB_TOKEN)
+        # login(token=HUGGINGFACE_HUB_TOKEN)
 
         openai.api_key = OPENAI_API_KEY
 
@@ -39,7 +39,7 @@ class Embedder:
         try:
             if model_type == "openai":
                 response = openai.embeddings.create(
-                    model="text-embedding-3-small",
+                    model=EMBEDDING_MODEL,
                     input=text
                 )
                 embeddings = np.array(response.data[0].embedding)
@@ -72,29 +72,35 @@ class Embedder:
             else:
                 raise ValueError(f"Embedding model '{model_type}' is not supported!")
 
+            logger.info(f"Embedding successfully created")
             return embeddings
         except Exception as e:
-            logger.error(f"An error occured during pdf load file: {e}")
+            logger.error(f"An error has occured during pdf load file: {e}")
             None
 
     def fuse_embeddings(self, embeddings: list[np.ndarray], method: str = 'mean'):
         # TODO Write docstring
 
-        if not embeddings:
-            raise ValueError("List of embeddings is empty.")
+        try:
+            if not embeddings:
+                raise ValueError("List of embeddings is empty.")
+            
+            if method == 'mean':
+                fused_emb = np.mean(embeddings, axis=0)
         
-        if method == 'mean':
-            fused_emb = np.mean(embeddings, axis=0)
-    
-        elif method == 'sum':
-            fused_emb = np.sum(embeddings, axis=0)
-        
-        elif method == 'concat':
-            fused_emb = np.concatenate(embeddings, axis=0)
-        
-        else:
-            raise ValueError(f"Method '{method}' not supported. Use 'mean', 'sum' or 'concat'.")
+            elif method == 'sum':
+                fused_emb = np.sum(embeddings, axis=0)
+            
+            elif method == 'concat':
+                fused_emb = np.concatenate(embeddings, axis=0)
+            
+            else:
+                logger.error(f"Method '{method}' not supported. Use 'mean', 'sum' or 'concat'.")
+                raise ValueError(f"Method '{method}' not supported. Use 'mean', 'sum' or 'concat'.")
 
-        return fused_emb
+            logger.info(f"Embedding successfully merged")
+            return fused_emb
+        except Exception as e:
+            logger.error(f"An error has occurred while merging embedding: {e}")
+            return None
         
- 

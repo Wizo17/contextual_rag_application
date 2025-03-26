@@ -4,31 +4,14 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain.schema import SystemMessage, HumanMessage
 from config.config import OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY
-from templates.prompts import ADD_CONTEXT_HUMAN_PROMPT, ADD_CONTEXT_SYSTEM_PROMPT
+from templates.prompts import ADD_CONTEXT_HUMAN_PROMPT, ADD_CONTEXT_SYSTEM_PROMPT, BASIC_QUESTION_SYSTEM_PROMPT, BASIC_QUESTION_HUMAN_PROMPT
+from utils.logger import logger
 
 class LLMSession:
-    """A class to manage Language Learning Model (LLM) sessions across different providers.
-
-    This class provides a unified interface to interact with various LLM providers
-    including OpenAI, Anthropic, Ollama, and Google. It handles the initialization
-    of the appropriate LLM client based on the specified provider and model.
-
-    Attributes:
-        provider (str): The LLM provider name (openai, anthropic, ollama, or google)
-        model (str): The specific model name to use with the provider
-        llm: The initialized LLM client instance
-    """
+    # TODO Write docstring
 
     def __init__(self, provider, model):
-        """Initialize a new LLM session.
-
-        Args:
-            provider (str, optional): The LLM provider to use. Defaults to value from global config.
-            model (str, optional): The model name to use. Defaults to value from global config.
-
-        Raises:
-            Exception: If an invalid provider is specified.
-        """
+        # TODO Write docstring
         self.provider = provider
         self.model = model
 
@@ -43,28 +26,35 @@ class LLMSession:
             raise Exception(f"Invalid LLM provider: {self.provider}")
 
         self.llm = model_providers[self.provider]()
-
-
-    def invoke(self, message):
-        """Send a message to the LLM and get a structured response.
-
-        Args:
-            message (str): The input message or prompt to send to the LLM.
-
-        Returns:
-            # TODO Complete
-        """
-        return self.llm.invoke(message)
     
     def get_context(self, chunk, document):
         # TODO Write docstring
+        try:
+            input_message = [
+                SystemMessage(content=ADD_CONTEXT_SYSTEM_PROMPT),
+                HumanMessage(content=ADD_CONTEXT_HUMAN_PROMPT.format(
+                    chunk = chunk, 
+                    document = document
+                ))
+            ]
 
-        input_message = [
-            SystemMessage(content=ADD_CONTEXT_SYSTEM_PROMPT),
-            HumanMessage(content=ADD_CONTEXT_HUMAN_PROMPT.format(
-                chunk = chunk, 
-                document = document
-            ))
-        ]
+            return self.llm.invoke(input_message).content
+        except Exception as e:
+            logger.error(f"An error has occurred while invoking model - get_context: {e}")
+            return None
+    
+    def get_response_from_documents(self, query: str, documents: list):
+        # TODO Write docstring
+        try:
+            input_message = [
+                SystemMessage(content=BASIC_QUESTION_SYSTEM_PROMPT),
+                HumanMessage(content=BASIC_QUESTION_HUMAN_PROMPT.format(
+                    query = query, 
+                    documents = "\nChunk: ".join(documents)
+                ))
+            ]
 
-        return self.invoke(input_message).content
+            return self.llm.invoke(input_message).content
+        except Exception as e:
+            logger.error(f"An error has occurred while invoking model - get_response_from_documents: {e}")
+            return None

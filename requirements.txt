@@ -22,4 +22,6 @@ torchaudio
 openai
 rank_bm25
 elasticsearch
-haystack
+haystack-ai
+sentence-transformers
+streamlit
