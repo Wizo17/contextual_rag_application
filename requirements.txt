@@ -14,3 +14,12 @@ langchain-anthropic
 langchain-google-genai
 transformers
 tiktoken
+faiss-cpu
+numpy
+torch
+torchvision
+torchaudio
+openai
+rank_bm25
+elasticsearch
+haystack

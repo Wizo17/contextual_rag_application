@@ -139,6 +139,9 @@ def load_documents(dir_path: str, limit: int = -1):
         else:
             logger.error(f"File type not supported: {path}")
         
-        processed_docs.append(content)
+        processed_docs.append({
+            "file_path": path,
+            "content": content
+        })
     
     return processed_docs

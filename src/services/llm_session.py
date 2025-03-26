@@ -2,8 +2,9 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
+from langchain.schema import SystemMessage, HumanMessage
 from config.config import OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY
-
+from templates.prompts import ADD_CONTEXT_HUMAN_PROMPT, ADD_CONTEXT_SYSTEM_PROMPT
 
 class LLMSession:
     """A class to manage Language Learning Model (LLM) sessions across different providers.
@@ -55,3 +56,15 @@ class LLMSession:
         """
         return self.llm.invoke(message)
     
+    def get_context(self, chunk, document):
+        # TODO Write docstring
+
+        input_message = [
+            SystemMessage(content=ADD_CONTEXT_SYSTEM_PROMPT),
+            HumanMessage(content=ADD_CONTEXT_HUMAN_PROMPT.format(
+                chunk = chunk, 
+                document = document
+            ))
+        ]
+
+        return self.invoke(input_message).content

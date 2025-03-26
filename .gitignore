@@ -5,6 +5,7 @@ venv/
 env/ 
 logs/
 examples/*
+data/index/*
 
 __pycache__/ 
 **/__pycache__/
