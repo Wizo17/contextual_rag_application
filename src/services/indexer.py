@@ -73,18 +73,14 @@ class Indexer:
                 logger.info(f"Process doc: {doc['file_path']}")
                 content = doc["content"]
                 chunks = chunk_text_gpt2(content, CHUNK_SIZE, OVERLAP_SIZE)
-                context_chunk_list = []
-                embedding_list = []
                 count = 0
 
                 for chunk in chunks:
                     count += 1
                     logger.info(f"Process chunk no: {count}")
                     context = self.context_llm_session.get_context(chunk, content)
-                    context_chunk_list.append(context)
 
                     emb_result = self.embedder.get_embedding(context, EMBEDDING_PROVIDER)
-                    embedding_list.append(emb_result)
 
                     self.embedding_size = emb_result.shape[0]
                     if self.embedding_size != EMBEDDING_DIM:

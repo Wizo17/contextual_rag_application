@@ -24,6 +24,13 @@ CONTEXT_CHUNKS_PATH = os.getenv("CONTEXT_CHUNKS_PATH")
 # Limit on the number of documents to process
 DOCUMENT_LIMIT = int(os.getenv("DOCUMENT_LIMIT"))
 
+# Activate mflow logs
+MLFLOW_ENABLE = os.getenv("MLFLOW_ENABLE")
+# mlflow host
+MFFLOW_HOST = os.getenv("MFFLOW_HOST")
+# mlflow port
+MFFLOW_PORT = os.getenv("MFFLOW_PORT")
+
 # Provider for embeddings
 EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER")
 # Model used for embeddings

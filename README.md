@@ -11,8 +11,12 @@ The project uses:
 * [Openai API](https://platform.openai.com/)
 * [Anthropic API](https://console.anthropic.com/)
 * [GoogleGenerativeAI API](https://aistudio.google.com/)
-* [Architecture example](https://www.anthropic.com/news/contextual-retrieval)
+* [MLFlow Tracking](https://mlflow.org/docs/latest/tracking/)
 
+
+## Architecture
+![Combine Contextual Retrieval and Reranking to maximize retrieval accuracy.](data/img/architecture.PNG)
+[https://www.anthropic.com/news/contextual-retrieval](https://www.anthropic.com/news/contextual-retrieval)
 
 ## Setup
 
@@ -25,8 +29,8 @@ The project uses:
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/Wizo17/generative_cag_application.git
-cd generative_cag_application
+git clone https://github.com/Wizo17/contextual_rag_application.git
+cd contextual_rag_application
 ```
 
 2. Create a virtual environment:
@@ -59,13 +63,26 @@ cp .env.example .env
 
 ## Running app
 
-#### Build index or test in console
+#### Keep or Delete and import **your own document in data/raw**
+
+#### Start mlflow if MLFLOW_ENABLE = "yes"
+Adapt host (MFFLOW_HOST) and port (MFFLOW_PORT)
+```bash
+mlflow server --host 127.0.0.1 --port 5000
+```
+
+#### Build index first
 ```bash
 python main.py
 ```
 
-#### Launch chatbot example
-By launching streamlit, you can have competitive conflicts with `torch`. Not a problem for this version.
+#### Test application
+If you keep my docs and my indexes
+```bash
+python test.py
+```
+
+By launching streamlit, you can have competitive conflicts with `torch`. It is not a problem for this version.
 ```bash
 streamlit run chatbot.py
 ```

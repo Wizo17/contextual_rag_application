@@ -23,6 +23,11 @@ st.title("Contextual RAG Example")
 
 
 # Init session state
+if "init_mlflow" not in st.session_state:
+    from src.utils.logger import setup_mlflow
+    setup_mlflow()
+    st.session_state.init_mlflow = True
+
 if "llm_session" not in st.session_state:
     st.session_state.llm_session = LLMSession(LLM_GENERATIVE_PROVIDER, LLM_GENERATIVE_MODEL)
 
