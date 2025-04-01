@@ -2,7 +2,7 @@ import os
 import json
 from uuid import uuid4
 from langchain_core.documents import Document
-from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_MODEL, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH
+from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_MODEL, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH, DOCUMENT_CHUNKS_PATH, UUIDS_CHUNKS_PATH
 from services.llm_session import LLMSession
 from reranking.reranker import Reranker
 from preprocessing.document_processor import load_documents
@@ -46,7 +46,9 @@ class Indexer2:
                     logger.info(f"Process chunk no: {count}")
                     context = self.context_llm_session.get_context(chunk, content)
 
-                    store_element = context # chunk or context (context + chunk)
+                    store_element = f"CONTEXT:\n{context}\nCHUNK:\n{chunk}" # chunk or context (context + chunk)
+                    # print(f"\nCONTEXT:\n{store_element}")
+                    # print(f"\nCHUNK:\n{chunk}")
 
                     # Use for storing chunk
                     self.global_store_docs.append({
@@ -137,6 +139,8 @@ class Indexer2:
             else:
                 corpus_list = list(set(retrieved_chunks + retrieved_lex))
 
+            corpus_list = retrieved_chunks
+
             # Rerank result
             chunk_rank = []
             rank_result = self.reranker.rerank_results(query, corpus_list, RERANK_TOP_K)
@@ -152,38 +156,47 @@ class Indexer2:
         # TODO Write docstring
         
         try:
-            data = {"chunks": self.global_chunks_list}
-            with open(CHUNKS_PATH, 'w') as f:
-                json.dump(data, f)
-                logger.info(f"Base chunk saved {CHUNKS_PATH}")
-
-            data = {"chunks": self.global_context_chunks_list}
-            with open(CONTEXT_CHUNKS_PATH, 'w') as f:
-                json.dump(data, f)
-                logger.info(f"Context chunk saved {CONTEXT_CHUNKS_PATH}")
+            # Save documents
+            documents_data = [
+                {"page_content": doc.page_content, "metadata": doc.metadata}
+                for doc in self.global_documents
+            ]
+            with open(DOCUMENT_CHUNKS_PATH, 'w', encoding='utf-8') as f:
+                json.dump({"documents": documents_data}, f, ensure_ascii=False, indent=4)
+                logger.info(f"Documents saved to {DOCUMENT_CHUNKS_PATH}")
+            
+            # Save UUIDs
+            with open(UUIDS_CHUNKS_PATH, 'w', encoding='utf-8') as f:
+                json.dump({"uuids": self.global_uuid}, f, ensure_ascii=False, indent=4)
+                logger.info(f"UUIDs saved to {UUIDS_CHUNKS_PATH}")
             
             return True
         except Exception as e:
-            logger.error(f"An error has occurred while merging embedding: {e}")
+            logger.error(f"An error occurred while saving data: {e}")
             return False
 
     def load_chunks(self):
         # TODO Write docstring
         
         try:
-            if os.path.exists(CHUNKS_PATH):
-                with open(CHUNKS_PATH, 'r') as f:
+            # Load documents
+            if os.path.exists(DOCUMENT_CHUNKS_PATH):
+                with open(DOCUMENT_CHUNKS_PATH, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    self.global_chunks_list = data["chunks"]
-                    logger.info(f"Base chunk loaded from {CONTEXT_CHUNKS_PATH}")
-
-            if os.path.exists(CONTEXT_CHUNKS_PATH):
-                with open(CONTEXT_CHUNKS_PATH, 'r') as f:
+                    self.global_documents = [
+                        Document(page_content=doc["page_content"], metadata=doc["metadata"])
+                        for doc in data.get("documents", [])
+                    ]
+                    logger.info(f"Documents loaded from {DOCUMENT_CHUNKS_PATH}")
+            
+            # Load UUIDs
+            if os.path.exists(UUIDS_CHUNKS_PATH):
+                with open(UUIDS_CHUNKS_PATH, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    self.global_context_chunks_list = data["chunks"]
-                    logger.info(f"Context chunk loaded from {CONTEXT_CHUNKS_PATH}")
-
+                    self.global_uuid = data.get("uuids", [])
+                    logger.info(f"UUIDs loaded from {UUIDS_CHUNKS_PATH}")
+            
             return True
         except Exception as e:
-            logger.error(f"An error has occurred while merging embedding: {e}")
+            logger.error(f"An error occurred while loading data: {e}")
             return False

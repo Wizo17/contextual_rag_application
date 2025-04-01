@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/src")
 
 from src.services.llm_session import LLMSession
 from src.services.indexer import Indexer
+from src.services.indexer2 import Indexer2
 from src.config.config import LLM_GENERATIVE_PROVIDER, LLM_GENERATIVE_MODEL
 from src.utils.logger import setup_mlflow
 
@@ -15,16 +16,17 @@ def main():
     print("Contextual RAG Example")
 
     llm_session = LLMSession(LLM_GENERATIVE_PROVIDER, LLM_GENERATIVE_MODEL)
-    indexer = Indexer()
+    # indexer = Indexer()
+    indexer = Indexer2()
 
     indexer.load_index()
     indexer.load_chunks()
 
     queries = [
         "Que contient la proposition de loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
-        "Fournis moi le contenu de l'article 3 de la loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
-        "Fournis moi un résumé de la proposition de loi pour réformer l'accueil des gens du voyage du 27 mars 2025.",
-        "Une question complètement aléatoire",
+        # "Fournis moi le contenu de l'article 3 de la loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
+        # "Fournis moi un résumé de la proposition de loi pour réformer l'accueil des gens du voyage du 27 mars 2025.",
+        # "Une question complètement aléatoire",
     ]
 
     for query in queries:

@@ -79,6 +79,7 @@ class Indexer:
                     count += 1
                     logger.info(f"Process chunk no: {count}")
                     context = self.context_llm_session.get_context(chunk, content)
+                    context = f"CONTEXT:\n{context}\nCHUNK:\n{chunk}" # chunk or context (context + chunk)
 
                     emb_result = self.embedder.get_embedding(context, EMBEDDING_PROVIDER)
 
