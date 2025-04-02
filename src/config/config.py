@@ -29,6 +29,8 @@ DOCUMENT_CHUNKS_PATH = os.getenv("DOCUMENT_CHUNKS_PATH")
 UUIDS_CHUNKS_PATH = os.getenv("UUIDS_CHUNKS_PATH")
 # Limit on the number of documents to process
 DOCUMENT_LIMIT = int(os.getenv("DOCUMENT_LIMIT"))
+# // Workers for process doc
+PROCESSING_DOC_MAX_WORKERS = int(os.getenv("PROCESSING_DOC_MAX_WORKERS"))
 
 # Activate mflow logs
 MLFLOW_ENABLE = os.getenv("MLFLOW_ENABLE")

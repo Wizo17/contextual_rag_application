@@ -2,8 +2,10 @@ import os
 import shutil
 import json
 from uuid import uuid4
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 from langchain_core.documents import Document
-from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH_INPUT, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_MODEL, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH, DOCUMENT_CHUNKS_PATH, UUIDS_CHUNKS_PATH, DOCUMENT_PATH_OUTPUT
+from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH_INPUT, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_MODEL, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH, DOCUMENT_CHUNKS_PATH, UUIDS_CHUNKS_PATH, DOCUMENT_PATH_OUTPUT, PROCESSING_DOC_MAX_WORKERS
 from services.llm_session import LLMSession
 from reranking.reranker import Reranker
 from preprocessing.document_processor import load_documents
@@ -28,8 +30,11 @@ class Indexer2:
         self.global_documents = []
         self.global_uuid = []
 
+        self.lock = threading.Lock() # Use lock for concurrency
+
     def process_docs(self, limit:int = DOCUMENT_LIMIT):
         # TODO Write docstring
+        # TODO Use process_single_doc
         
         logger.info(f"Process docs in {DOCUMENT_PATH_INPUT}")
 
@@ -41,38 +46,55 @@ class Indexer2:
                 content = doc["content"]
                 chunks = chunk_text_gpt2(content, CHUNK_SIZE, OVERLAP_SIZE)
                 count = 0
+                as_error = False
+                sub_store_docs_list = []
+                sub_chunks_list = []
+                sub_context_chunks_list = []
+                sub_document_list = []
+                sub_uuid_list = []
 
                 for chunk in chunks:
                     count += 1
                     logger.info(f"Process chunk no: {count}")
                     context = self.context_llm_session.get_context(chunk, content)
+                    if context is None:
+                        as_error = True
+                        break
 
                     store_element = f"CONTEXT:\n{context}\nCHUNK:\n{chunk}" # chunk or context (context + chunk)
-                    # print(f"\nCONTEXT:\n{store_element}")
-                    # print(f"\nCHUNK:\n{chunk}")
+                    # logger.debug(f"\nCONTEXT:\n{store_element}")
+                    # logger.debug(f"\nCHUNK:\n{chunk}")
 
                     # Use for storing chunk
-                    self.global_store_docs.append({
+                    sub_store_docs_list.append({
                         "file_path": doc["file_path"],
                         "document_id": os.path.basename(doc["file_path"]),
                         "content": store_element
                     })
 
-                    # Fill global data
-                    self.global_chunks_list.append(chunk)
-                    self.global_context_chunks_list.append(context)
-                    self.global_documents.append(
+                    sub_chunks_list.append(chunk)
+                    sub_context_chunks_list.append(context)
+                    sub_document_list.append(
                         Document(
                             page_content=store_element,
                             metadata={"source": os.path.basename(doc["file_path"])},
                         )
                     )
-                    self.global_uuid.append(str(uuid4()))
+                    sub_uuid_list.append(str(uuid4()))
 
-                # Move doc
-                os.makedirs(DOCUMENT_PATH_OUTPUT, exist_ok=True)
-                shutil.move(doc["file_path"], DOCUMENT_PATH_OUTPUT)
-                logger.info(f"Document move from {doc["file_path"]} to {DOCUMENT_PATH_OUTPUT}")
+                if not as_error:
+                    # Update global data
+                    self.global_store_docs.extend(sub_store_docs_list)
+                    self.global_chunks_list.extend(sub_chunks_list)
+                    self.global_context_chunks_list.extend(sub_context_chunks_list)
+                    self.global_documents.extend(sub_document_list)
+                    self.global_uuid.extend(sub_uuid_list)
+
+                    # Move doc
+                    os.makedirs(DOCUMENT_PATH_OUTPUT, exist_ok=True)
+                    shutil.move(doc["file_path"], DOCUMENT_PATH_OUTPUT)
+                    logger.info(f"Document move from {doc["file_path"]} to {DOCUMENT_PATH_OUTPUT}")
+
 
             return True    
         except Exception as e:
@@ -145,6 +167,7 @@ class Indexer2:
             else:
                 corpus_list = list(set(retrieved_chunks + retrieved_lex))
 
+            # TODO Remove this - just for test
             corpus_list = retrieved_chunks
 
             # Rerank result
@@ -206,3 +229,106 @@ class Indexer2:
         except Exception as e:
             logger.error(f"An error occurred while loading data: {e}")
             return False
+        
+    def process_single_doc(self, doc):
+        # TODO Write docstring
+        
+        logger.info(f"Processing document: {doc['file_path']}")
+        content = doc["content"]
+        chunks = chunk_text_gpt2(content, CHUNK_SIZE, OVERLAP_SIZE)
+        as_error = False
+        sub_store_docs_list = []
+        sub_chunks_list = []
+        sub_context_chunks_list = []
+        sub_document_list = []
+        sub_uuid_list = []
+
+        for count, chunk in enumerate(chunks, start=1):
+            logger.info(f"Processing chunk {count}")
+            context = self.context_llm_session.get_context(chunk, content)
+            if context is None:
+                as_error = True
+                break
+            store_element = f"CONTEXT:\n{context}\nCHUNK:\n{chunk}"
+
+            # Storage chunk data
+            with self.lock:  # Lock writing
+                sub_store_docs_list.append({
+                    "file_path": doc["file_path"],
+                    "document_id": os.path.basename(doc["file_path"]),
+                    "content": store_element
+                })
+
+                sub_chunks_list.append(chunk)
+                sub_context_chunks_list.append(context)
+                sub_document_list.append(
+                    Document(
+                        page_content=store_element,
+                        metadata={"source": os.path.basename(doc["file_path"])},
+                    )
+                )
+                sub_uuid_list.append(str(uuid4()))
+
+        if not as_error:
+            # Update global data
+            self.global_store_docs.extend(sub_store_docs_list)
+            self.global_chunks_list.extend(sub_chunks_list)
+            self.global_context_chunks_list.extend(sub_context_chunks_list)
+            self.global_documents.extend(sub_document_list)
+            self.global_uuid.extend(sub_uuid_list)
+
+            # Move doc
+            os.makedirs(DOCUMENT_PATH_OUTPUT, exist_ok=True)
+            shutil.move(doc["file_path"], DOCUMENT_PATH_OUTPUT)
+            logger.info(f"Document move from {doc["file_path"]} to {DOCUMENT_PATH_OUTPUT}")
+
+    def parallel_process_docs(self):
+        # TODO Write docstring
+
+        try:
+            documents = load_documents(DOCUMENT_PATH_INPUT, limit=DOCUMENT_LIMIT)
+            logger.info(f"Processing {len(documents)} documents in parallel")
+
+            with ThreadPoolExecutor(max_workers = PROCESSING_DOC_MAX_WORKERS) as executor:
+                futures = {executor.submit(self.process_single_doc, doc): doc for doc in documents}
+
+                for future in as_completed(futures):
+                    try:
+                        future.result()  # Throw except if process isn't complete
+                    except Exception as e:
+                        logger.error(f"Error processing document {futures[future]['file_path']}: {e}")
+
+            return True
+        except Exception as e:
+            logger.error(f"An error occurred during parallel document processing: {e}")
+            return False
+
+    def execute_pipeline(self, strict:bool = False):
+        # TODO Write docstring
+        
+        logger.info("Starting indexing pipeline")
+
+        if not self.load_index():
+            logger.error("Failed to load index.")
+            if strict:
+                return False
+
+        if not self.load_chunks():
+            logger.error("Failed to load chunks.")
+            if strict:
+                return False
+
+        if not self.parallel_process_docs():
+            logger.error("Error during document processing. Aborting.")
+            return False
+
+        if not self.build_index():
+            logger.error("Failed to build index. Aborting.")
+            return False
+
+        if not self.save_chunks():
+            logger.error("Failed to save chunks. Aborting.")
+            return False
+        
+        logger.info("Indexing pipeline completed successfully")
+        return True

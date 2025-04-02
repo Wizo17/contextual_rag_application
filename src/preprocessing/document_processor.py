@@ -174,11 +174,11 @@ def list_files_in_directory(dir_path: str, complete=False):
 
     try:
         if not os.path.exists(dir_path):
-            print(f"Path '{dir_path}' doesn't exist.")
+            logger.error(f"Path '{dir_path}' doesn't exist.")
             return []
             
         if not os.path.isdir(dir_path):
-            print(f"'{dir_path}' isn't folder.")
+            logger.error(f"'{dir_path}' isn't folder.")
             return []
         
         output_list = []
