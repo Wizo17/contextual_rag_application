@@ -23,9 +23,12 @@ def main():
     indexer.load_chunks()
 
     queries = [
-        "Que contient la proposition de loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
+        # "Que contient la proposition de loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
         # "Fournis moi le contenu de l'article 3 de la loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
         # "Fournis moi un résumé de la proposition de loi pour réformer l'accueil des gens du voyage du 27 mars 2025.",
+        "Que contient la proposition de loi visant à lutter contre les déserts médicaux ?",
+        "Donne moi l'artile 4 la proposition de loi visant à lutter contre les déserts médicaux ?",
+        "Que contient le contenu de l'article 1 de la PROPOSITION DE LOI ORGANIQUE du 07 mars 2025 ?",
         # "Une question complètement aléatoire",
     ]
 
@@ -35,7 +38,7 @@ def main():
 
         answer = llm_session.get_response_from_documents(query, doc_res)
         print(f"Query: {query}")
-        print(f"Answer: {answer}")
+        print(f"Answer: {answer}\n\n")
         
 
 if __name__ == "__main__":

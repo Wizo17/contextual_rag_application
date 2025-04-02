@@ -1,8 +1,9 @@
 import os
+import shutil
 import json
 from uuid import uuid4
 from langchain_core.documents import Document
-from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_MODEL, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH, DOCUMENT_CHUNKS_PATH, UUIDS_CHUNKS_PATH
+from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH_INPUT, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_MODEL, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH, DOCUMENT_CHUNKS_PATH, UUIDS_CHUNKS_PATH, DOCUMENT_PATH_OUTPUT
 from services.llm_session import LLMSession
 from reranking.reranker import Reranker
 from preprocessing.document_processor import load_documents
@@ -30,10 +31,10 @@ class Indexer2:
     def process_docs(self, limit:int = DOCUMENT_LIMIT):
         # TODO Write docstring
         
-        logger.info(f"Process docs in {DOCUMENT_PATH}")
+        logger.info(f"Process docs in {DOCUMENT_PATH_INPUT}")
 
         try:
-            documents = load_documents(DOCUMENT_PATH, limit=limit)
+            documents = load_documents(DOCUMENT_PATH_INPUT, limit=limit)
 
             for doc in documents:
                 logger.info(f"Process doc: {doc['file_path']}")
@@ -67,6 +68,11 @@ class Indexer2:
                         )
                     )
                     self.global_uuid.append(str(uuid4()))
+
+                # Move doc
+                os.makedirs(DOCUMENT_PATH_OUTPUT, exist_ok=True)
+                shutil.move(doc["file_path"], DOCUMENT_PATH_OUTPUT)
+                logger.info(f"Document move from {doc["file_path"]} to {DOCUMENT_PATH_OUTPUT}")
 
             return True    
         except Exception as e:

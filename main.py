@@ -19,28 +19,32 @@ def main():
 
     # indexer = Indexer()
     indexer = Indexer2()
+
+    indexer.load_index()
+    indexer.load_chunks()
+    
     indexer.process_docs()
     indexer.build_index()
     indexer.save_chunks()
 
     print("Successful index construction")
 
-    llm_session = LLMSession(LLM_GENERATIVE_PROVIDER, LLM_GENERATIVE_MODEL)
+    # llm_session = LLMSession(LLM_GENERATIVE_PROVIDER, LLM_GENERATIVE_MODEL)
 
-    queries = [
-        "Que contient la proposition de loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
-        # "Fournis moi le contenu de l'article 3 de la loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
-        # "Fournis moi un résumé de la proposition de loi pour réformer l'accueil des gens du voyage du 27 mars 2025.",
-        # "Une question complètement aléatoire",
-    ]
+    # queries = [
+    #     "Que contient la proposition de loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
+    #     # "Fournis moi le contenu de l'article 3 de la loi contre les fraudes aux moyens de paiement scripturaux du 19 mars 2025 ?",
+    #     # "Fournis moi un résumé de la proposition de loi pour réformer l'accueil des gens du voyage du 27 mars 2025.",
+    #     # "Une question complètement aléatoire",
+    # ]
 
-    for query in queries:
-        doc_res = indexer.query_index(query)
-        # print(doc_res)
+    # for query in queries:
+    #     doc_res = indexer.query_index(query)
+    #     # print(doc_res)
 
-        answer = llm_session.get_response_from_documents(query, doc_res)
-        print(f"Query: {query}")
-        print(f"Answer: {answer}")
+    #     answer = llm_session.get_response_from_documents(query, doc_res)
+    #     print(f"Query: {query}")
+    #     print(f"Answer: {answer}")
         
 
 if __name__ == "__main__":

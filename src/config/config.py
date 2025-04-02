@@ -16,7 +16,9 @@ INDEX_PATH = os.getenv("INDEX_PATH")
 # Path to the lexical store
 LEXICAL_STORE_PATH = os.getenv("LEXICAL_STORE_PATH")
 # Path to the documents
-DOCUMENT_PATH = os.getenv("DOCUMENT_PATH")
+DOCUMENT_PATH_INPUT = os.getenv("DOCUMENT_PATH_INPUT")
+# Path to the proesed documents
+DOCUMENT_PATH_OUTPUT = os.getenv("DOCUMENT_PATH_OUTPUT")
 # Path to the chunks
 CHUNKS_PATH = os.getenv("CHUNKS_PATH")
 # Path to the context chunks
