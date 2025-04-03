@@ -105,6 +105,8 @@ class Indexer2:
         # TODO Write docstring
         
         if not self.global_documents or not self.global_store_docs:
+            logger.error(f"Size of documents: {len(self.global_documents)}")
+            logger.error(f"Size of store doc: {len(self.global_store_docs)}")
             logger.error(f"Error durring building index.")
             return False
         
@@ -167,9 +169,6 @@ class Indexer2:
             else:
                 corpus_list = list(set(retrieved_chunks + retrieved_lex))
 
-            # TODO Remove this - just for test
-            corpus_list = retrieved_chunks
-
             # Rerank result
             chunk_rank = []
             rank_result = self.reranker.rerank_results(query, corpus_list, RERANK_TOP_K)
@@ -185,6 +184,15 @@ class Indexer2:
         # TODO Write docstring
         
         try:
+            # # Save store documents
+            # store_data = [
+            #     {"file_path": doc.file_path, "document_id": doc.document_id, "content": doc.content}
+            #     for doc in self.global_store_docs
+            # ]
+            # with open("data/index/doc_store.json", 'w', encoding='utf-8') as f:
+            #     json.dump({"documents": store_data}, f, ensure_ascii=False, indent=4)
+            #     logger.info(f"Documents saved to {"data/index/doc_store.json"}")
+
             # Save documents
             documents_data = [
                 {"page_content": doc.page_content, "metadata": doc.metadata}
@@ -208,6 +216,24 @@ class Indexer2:
         # TODO Write docstring
         
         try:
+            # Load store documents
+            # store_data = [
+            #     {"file_path": doc.file_path, "document_id": doc.document_id, "content": doc.content}
+            #     for doc in self.global_store_docs
+            # ]
+            # with open("data/index/doc_store.json", 'w', encoding='utf-8') as f:
+            #     json.dump({"documents": store_data}, f, ensure_ascii=False, indent=4)
+            #     logger.info(f"Documents saved to {"data/index/doc_store.json"}")
+
+            # if os.path.exists("data/index/doc_store.json"):
+            #     with open("data/index/doc_store.json", 'r', encoding='utf-8') as f:
+            #         data = json.load(f)
+            #         self.global_documents = [
+            #             Document(page_content=doc["page_content"], metadata=doc["metadata"])
+            #             for doc in data.get("documents", [])
+            #         ]
+            #         logger.info(f"Documents loaded from {DOCUMENT_CHUNKS_PATH}") 
+
             # Load documents
             if os.path.exists(DOCUMENT_CHUNKS_PATH):
                 with open(DOCUMENT_CHUNKS_PATH, 'r', encoding='utf-8') as f:

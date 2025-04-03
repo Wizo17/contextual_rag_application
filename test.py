@@ -28,7 +28,11 @@ def main():
     indexer.load_chunks()
 
     queries = [
-        "Que contient les recours des Drs Thierry et Jean-Bernard S ?",
+        "Cas de médecin généraliste condamné",
+        "Liste de cas avec ophtalmologue",
+        "Dans le Dossier n° 5301, quels arguments le Dr A a-t-il soulevés pour contester les sanctions qui lui ont été infligées du 17 avril 2018 ?",
+        "Dans le Dossier n° 5301, quel était le motif du rejet de l'appel de la caisse ?"
+        "Que contient la plainte du 29 novembre 2016 avec M. B contre Dr A ?",
     ]
 
     for query in queries:
