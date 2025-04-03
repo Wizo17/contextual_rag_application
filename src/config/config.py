@@ -27,6 +27,8 @@ CONTEXT_CHUNKS_PATH = os.getenv("CONTEXT_CHUNKS_PATH")
 DOCUMENT_CHUNKS_PATH = os.getenv("DOCUMENT_CHUNKS_PATH")
 # Path to the uuids chunks
 UUIDS_CHUNKS_PATH = os.getenv("UUIDS_CHUNKS_PATH")
+# Path to the document store
+DOCUMENT_STORE_PATH = os.getenv("DOCUMENT_STORE_PATH")
 # Limit on the number of documents to process
 DOCUMENT_LIMIT = int(os.getenv("DOCUMENT_LIMIT"))
 # // Workers for process doc

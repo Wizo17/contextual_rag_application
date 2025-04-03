@@ -17,6 +17,8 @@ class FaissLangchainVectorStore:
         self.model = model
         self.index_file_path = index_file_path
 
+        logger.info(f"FaissLangchainVectorStore: provider = {self.provider}, model = {self.model}, index_file_path = {self.index_file_path}")
+
         model_providers = {
             "openai": lambda: OpenAIEmbeddings(model=self.model, openai_api_key=OPENAI_API_KEY),
             "ollama": lambda: OllamaEmbeddings(model=self.model),

@@ -5,7 +5,7 @@ from uuid import uuid4
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 from langchain_core.documents import Document
-from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH_INPUT, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_MODEL, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH, DOCUMENT_CHUNKS_PATH, UUIDS_CHUNKS_PATH, DOCUMENT_PATH_OUTPUT, PROCESSING_DOC_MAX_WORKERS
+from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH_INPUT, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_MODEL, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH, DOCUMENT_CHUNKS_PATH, UUIDS_CHUNKS_PATH, DOCUMENT_PATH_OUTPUT, PROCESSING_DOC_MAX_WORKERS, DOCUMENT_STORE_PATH
 from services.llm_session import LLMSession
 from reranking.reranker import Reranker
 from preprocessing.document_processor import load_documents
@@ -93,7 +93,7 @@ class Indexer2:
                     # Move doc
                     os.makedirs(DOCUMENT_PATH_OUTPUT, exist_ok=True)
                     shutil.move(doc["file_path"], DOCUMENT_PATH_OUTPUT)
-                    logger.info(f"Document move from {doc["file_path"]} to {DOCUMENT_PATH_OUTPUT}")
+                    logger.info(f"Document move from {doc['file_path']} to {DOCUMENT_PATH_OUTPUT}")
 
 
             return True    
@@ -184,14 +184,10 @@ class Indexer2:
         # TODO Write docstring
         
         try:
-            # # Save store documents
-            # store_data = [
-            #     {"file_path": doc.file_path, "document_id": doc.document_id, "content": doc.content}
-            #     for doc in self.global_store_docs
-            # ]
-            # with open("data/index/doc_store.json", 'w', encoding='utf-8') as f:
-            #     json.dump({"documents": store_data}, f, ensure_ascii=False, indent=4)
-            #     logger.info(f"Documents saved to {"data/index/doc_store.json"}")
+            # Save store documents
+            with open(DOCUMENT_STORE_PATH, 'w', encoding='utf-8') as f:
+                json.dump({"documents": self.global_store_docs}, f, ensure_ascii=False, indent=4)
+                logger.info(f"Documents store saved to {DOCUMENT_STORE_PATH}")
 
             # Save documents
             documents_data = [
@@ -216,23 +212,11 @@ class Indexer2:
         # TODO Write docstring
         
         try:
-            # Load store documents
-            # store_data = [
-            #     {"file_path": doc.file_path, "document_id": doc.document_id, "content": doc.content}
-            #     for doc in self.global_store_docs
-            # ]
-            # with open("data/index/doc_store.json", 'w', encoding='utf-8') as f:
-            #     json.dump({"documents": store_data}, f, ensure_ascii=False, indent=4)
-            #     logger.info(f"Documents saved to {"data/index/doc_store.json"}")
-
-            # if os.path.exists("data/index/doc_store.json"):
-            #     with open("data/index/doc_store.json", 'r', encoding='utf-8') as f:
-            #         data = json.load(f)
-            #         self.global_documents = [
-            #             Document(page_content=doc["page_content"], metadata=doc["metadata"])
-            #             for doc in data.get("documents", [])
-            #         ]
-            #         logger.info(f"Documents loaded from {DOCUMENT_CHUNKS_PATH}") 
+            if os.path.exists(DOCUMENT_STORE_PATH):
+                with open(DOCUMENT_STORE_PATH, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    self.global_store_docs = data.get("documents", [])
+                    logger.info(f"Documents strore loaded from {DOCUMENT_STORE_PATH}") 
 
             # Load documents
             if os.path.exists(DOCUMENT_CHUNKS_PATH):
@@ -306,7 +290,7 @@ class Indexer2:
             # Move doc
             os.makedirs(DOCUMENT_PATH_OUTPUT, exist_ok=True)
             shutil.move(doc["file_path"], DOCUMENT_PATH_OUTPUT)
-            logger.info(f"Document move from {doc["file_path"]} to {DOCUMENT_PATH_OUTPUT}")
+            logger.info(f"Document move from {doc['file_path']} to {DOCUMENT_PATH_OUTPUT}")
 
     def parallel_process_docs(self):
         # TODO Write docstring

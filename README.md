@@ -72,12 +72,14 @@ mlflow server --host 127.0.0.1 --port 5000
 ```
 
 #### Build index first
+It is not necessary if you keep my docs and my indexes
+Remove all files in data/index before
 ```bash
 python main.py
 ```
 
 #### Test application
-If you keep my docs and my indexes
+Update queries if you don't keep my docs and my indexes
 ```bash
 python test.py
 ```
