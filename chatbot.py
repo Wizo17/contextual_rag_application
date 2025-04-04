@@ -10,6 +10,7 @@ import streamlit as st
 from src.utils.logger import logger
 from src.services.llm_session import LLMSession
 from src.services.indexer import Indexer
+from src.services.indexer2 import Indexer2
 from src.config.config import LLM_GENERATIVE_PROVIDER, LLM_GENERATIVE_MODEL
 
 
@@ -32,7 +33,8 @@ if "llm_session" not in st.session_state:
     st.session_state.llm_session = LLMSession(LLM_GENERATIVE_PROVIDER, LLM_GENERATIVE_MODEL)
 
 if "indexer" not in st.session_state:
-    st.session_state.indexer = Indexer()
+    # st.session_state.indexer = Indexer()
+    st.session_state.indexer = Indexer2()
     st.session_state.indexer.load_index()
     st.session_state.indexer.load_chunks()
 

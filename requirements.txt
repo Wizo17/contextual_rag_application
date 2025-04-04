@@ -27,3 +27,4 @@ haystack-ai
 sentence-transformers
 streamlit
 mlflow
+psutil

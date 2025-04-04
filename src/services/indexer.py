@@ -1,6 +1,6 @@
 import os
 import json
-from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_DIM, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH
+from config.config import LLM_CONTEXTUAL_MODEL, LLM_CONTEXTUAL_PROVIDER, DOCUMENT_PATH_INPUT, DOCUMENT_LIMIT, CHUNK_SIZE, OVERLAP_SIZE, INDEX_PATH, EMBEDDING_DIM, EMBEDDING_PROVIDER, RETRIEVAL_TOP_K, RERANK_TOP_K, CHUNKS_PATH, CONTEXT_CHUNKS_PATH
 from services.llm_session import LLMSession
 from embedding.embedder import Embedder
 from reranking.reranker import Reranker
@@ -64,10 +64,10 @@ class Indexer:
             bool: True if the documents were processed successfully, False otherwise.
         """
         
-        logger.info(f"Process docs in {DOCUMENT_PATH}")
+        logger.info(f"Process docs in {DOCUMENT_PATH_INPUT}")
 
         try:
-            documents = load_documents(DOCUMENT_PATH, limit=limit)
+            documents = load_documents(DOCUMENT_PATH_INPUT, limit=limit)
 
             for doc in documents:
                 logger.info(f"Process doc: {doc['file_path']}")
@@ -79,6 +79,7 @@ class Indexer:
                     count += 1
                     logger.info(f"Process chunk no: {count}")
                     context = self.context_llm_session.get_context(chunk, content)
+                    context = f"CONTEXT:\n{context}\nCHUNK:\n{chunk}" # chunk or context (context + chunk)
 
                     emb_result = self.embedder.get_embedding(context, EMBEDDING_PROVIDER)
 

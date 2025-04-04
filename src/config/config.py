@@ -16,13 +16,23 @@ INDEX_PATH = os.getenv("INDEX_PATH")
 # Path to the lexical store
 LEXICAL_STORE_PATH = os.getenv("LEXICAL_STORE_PATH")
 # Path to the documents
-DOCUMENT_PATH = os.getenv("DOCUMENT_PATH")
+DOCUMENT_PATH_INPUT = os.getenv("DOCUMENT_PATH_INPUT")
+# Path to the proesed documents
+DOCUMENT_PATH_OUTPUT = os.getenv("DOCUMENT_PATH_OUTPUT")
 # Path to the chunks
 CHUNKS_PATH = os.getenv("CHUNKS_PATH")
 # Path to the context chunks
 CONTEXT_CHUNKS_PATH = os.getenv("CONTEXT_CHUNKS_PATH")
+# Path to the document chunks
+DOCUMENT_CHUNKS_PATH = os.getenv("DOCUMENT_CHUNKS_PATH")
+# Path to the uuids chunks
+UUIDS_CHUNKS_PATH = os.getenv("UUIDS_CHUNKS_PATH")
+# Path to the document store
+DOCUMENT_STORE_PATH = os.getenv("DOCUMENT_STORE_PATH")
 # Limit on the number of documents to process
 DOCUMENT_LIMIT = int(os.getenv("DOCUMENT_LIMIT"))
+# // Workers for process doc
+PROCESSING_DOC_MAX_WORKERS = int(os.getenv("PROCESSING_DOC_MAX_WORKERS"))
 
 # Activate mflow logs
 MLFLOW_ENABLE = os.getenv("MLFLOW_ENABLE")
